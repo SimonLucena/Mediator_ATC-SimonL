@@ -26,7 +26,7 @@ public class RunwayRepository {
     public ArrayList<Runway> getRunwaysByState(RunwayState state) {
         ArrayList<Runway> retorno = new ArrayList<>();
         for (Runway runway : runways) {
-            if (runway.getState() == state){
+            if (runway.getState().equals(state)){
                 retorno.add(runway);
             }
         }
