@@ -10,10 +10,10 @@ public interface ATCMediator {
     void regsiterTeam(Equipe equipe);
     boolean isLandingOk();
     void setLandingStatus(boolean status);
-    void setLandingOcupied(Runway runway);
     Runway selectRunwayForLanding();
     void clearRunway(Runway runway);
     boolean solicitarLanding(Flight flight);
     void setLanded(Flight flight);
     boolean checarFila(Flight flight);
+    boolean checarPermissao(Flight flight);
 }

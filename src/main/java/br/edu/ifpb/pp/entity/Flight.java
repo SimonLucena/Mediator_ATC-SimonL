@@ -9,7 +9,6 @@ public class Flight implements Command {
     private String flightNumber = null;
     private String airline = null;
     private boolean permissao;
-    private int posicao;
 
     public Flight(ATCMediator atcMediator, String airline, String flight ) {
         this.atcMediator = atcMediator;
@@ -20,9 +19,10 @@ public class Flight implements Command {
 
     @Override
     public void land() {
-        if (atcMediator.checarFila(this) && permissao) {
+        this.permissao = atcMediator.checarPermissao(this);
+        if (permissao) {
             System.out.println("Pousando...");
-            atcMediator.solicitarLanding(this);
+//            atcMediator.solicitarLanding(this);
             System.out.println("Flight " + flightNumber + " Successfully Landed on runway.");
             System.out.println();
             atcMediator.setLanded(this);
@@ -38,12 +38,16 @@ public class Flight implements Command {
         if (permissao) {
             System.out.println("Permissão concedida.");
         }else {
-            System.out.println("Permissão rejeitada.");
+            System.out.println("Permissão rejeitada. Na lista de espera.");
         }
         System.out.println();
     }
 
     public void setReady() {
         this.permissao = true;
+    }
+
+    public boolean isPermissao() {
+        return permissao;
     }
 }

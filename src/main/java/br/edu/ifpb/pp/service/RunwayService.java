@@ -1,6 +1,7 @@
 package br.edu.ifpb.pp.service;
 
 import br.edu.ifpb.pp.landing.Runway;
+import br.edu.ifpb.pp.landing.state.DisponivelState;
 import br.edu.ifpb.pp.landing.state.IndisponivelState;
 import br.edu.ifpb.pp.landing.state.InseguroState;
 import br.edu.ifpb.pp.repository.RunwayRepository;
@@ -26,8 +27,12 @@ public class RunwayService {
     }
 
     public Runway getRunwayDisponivel() {
+        return runwayRepository.getRunwaysByState(new DisponivelState()).getFirst();
+    }
+
+    public Runway getRunwayForLanding() {
         for (Runway runway : runwayRepository.getRunways()) {
-            if (runway.getStatus().equalsIgnoreCase("disponivel")) {
+            if (!runway.getStatus().equalsIgnoreCase("indisponivel")) {
                 return runway;
             }
         }
@@ -54,5 +59,13 @@ public class RunwayService {
                 runway.setState(new InseguroState());
             }
         }
+    }
+
+    public void setIndisponivel(Runway ocupada) {
+        runwayRepository.getRunway(ocupada).setState(new IndisponivelState());
+    }
+
+    public Runway getRunway(Runway runway) {
+        return runwayRepository.getRunway(runway);
     }
 }

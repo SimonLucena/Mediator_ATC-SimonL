@@ -17,6 +17,7 @@ public class MainMediator {
 
         //Componente 2
         Runway mainRunway = new Runway(atcMediator);
+        Runway secondRunway = new Runway(atcMediator);
 
         // Componente 3
         Equipe equipe = new Equipe(atcMediator);
@@ -26,6 +27,7 @@ public class MainMediator {
         atcMediator.registerFlight(f3);
 
         atcMediator.registerRunway(mainRunway);
+        atcMediator.registerRunway(secondRunway);
 
         atcMediator.regsiterTeam(equipe);
 
@@ -44,11 +46,7 @@ public class MainMediator {
 
         f2.land();
 
-        mainRunway.clear();
-
         f3.land();
-
-        f2.land();
 
         mainRunway.clear();
 

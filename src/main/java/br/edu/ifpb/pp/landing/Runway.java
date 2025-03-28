@@ -33,4 +33,8 @@ public class Runway implements Command {
     public String getStatus() {
         return state.getStatus();
     }
+
+    public RunwayState getState() {
+        return state;
+    }
 }

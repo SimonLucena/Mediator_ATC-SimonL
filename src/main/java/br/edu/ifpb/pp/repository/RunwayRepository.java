@@ -1,6 +1,8 @@
 package br.edu.ifpb.pp.repository;
 
 import br.edu.ifpb.pp.landing.Runway;
+import br.edu.ifpb.pp.landing.state.RunwayState;
+
 import java.util.ArrayList;
 
 public class RunwayRepository {
@@ -15,5 +17,19 @@ public class RunwayRepository {
     }
     public void addRunway(Runway runway) {
         runways.add(runway);
+    }
+
+    public Runway getRunway(Runway ocupada) {
+        return runways.get(runways.indexOf(ocupada));
+    }
+
+    public ArrayList<Runway> getRunwaysByState(RunwayState state) {
+        ArrayList<Runway> retorno = new ArrayList<>();
+        for (Runway runway : runways) {
+            if (runway.getState() == state){
+                retorno.add(runway);
+            }
+        }
+        return retorno.isEmpty() ? null : retorno;
     }
 }

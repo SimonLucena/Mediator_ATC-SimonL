@@ -5,6 +5,7 @@ import br.edu.ifpb.pp.entity.Flight;
 import br.edu.ifpb.pp.landing.Runway;
 import br.edu.ifpb.pp.landing.state.DisponivelState;
 import br.edu.ifpb.pp.landing.state.IndisponivelState;
+import br.edu.ifpb.pp.landing.state.InseguroState;
 import br.edu.ifpb.pp.service.FlightService;
 import br.edu.ifpb.pp.service.RunwayService;
 
@@ -15,7 +16,9 @@ import java.util.Map;
 public class ATC implements ATCMediator {
     private final FlightService flights = new FlightService();
     private final RunwayService runways = new RunwayService();
-    private ArrayList<Flight> fila = new ArrayList<>();
+    private final ArrayList<Flight> fila = new ArrayList<>();
+    private final ArrayList<Runway> runwaysOcupadas = new ArrayList<>();
+    private Map<Flight, Runway> runwayReservada = new HashMap<>();
     private Equipe equipe;
     private boolean status;
 
@@ -40,19 +43,11 @@ public class ATC implements ATCMediator {
     }
 
     @Override
-    public void setLandingOcupied(Runway runway) {
-        equipe.setAtivo(true);
-    }
-
-    @Override
     public void clearRunway(Runway pista) {
-        for (Runway runway : runways.getAll()) {
-            if (runway == pista) {
-                runway.setState(new DisponivelState());
-                runway.land();
-                fila.getFirst().setReady();
-            }
-        }
+        runways.getRunway(pista)
+                .setState(new DisponivelState());
+        liberarPista(pista);
+        fila.getFirst().setReady();
     }
 
     @Override
@@ -68,12 +63,7 @@ public class ATC implements ATCMediator {
 
     @Override
     public boolean isLandingOk() {
-        for (Runway runway : runways.getAll()) {
-            if(runway.getStatus().equalsIgnoreCase("disponivel")) {
-                return true;
-            }
-        }
-        return false;
+        return runways.getRunwayForLanding() != null;
     }
 
     @Override
@@ -81,6 +71,7 @@ public class ATC implements ATCMediator {
         fila.add(flight);
         if (isLandingOk() && fila.getFirst().equals(flight)) {
             Runway runway = selectRunwayForLanding();
+            runwayReservada.put(flight, runway);
             runways.setOtherImseguro(runway);
             return true;
         }
@@ -89,11 +80,50 @@ public class ATC implements ATCMediator {
 
     @Override
     public void setLanded(Flight flight) {
-        fila.removeFirst();
+        Runway pista = runwayReservada.get(flight);
+
+        if (pista == null) {
+            System.out.println("Erro: nenhuma pista reservada para o voo.");
+            return;
+        }
+
+        fila.remove(flight);
+        runwayReservada.remove(flight);
+
+        if (!fila.isEmpty()) {
+            Flight proximo = fila.getFirst();
+
+            if (isLandingOk()) {
+                Runway pistaLivre = selectRunwayForLanding();
+                runwayReservada.put(proximo, pistaLivre);
+                runways.setOtherImseguro(pistaLivre);
+                proximo.setReady();
+            }
+        }
     }
+
 
     @Override
     public boolean checarFila(Flight flight) {
         return fila.getFirst().equals(flight);
+    }
+
+    public void liberarPista(Runway pista) {
+        System.out.println("Equipe em ação na pista...");
+        pista.setState(new InseguroState());
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        System.out.println("Equipe terminou inspeção e liberou a pista.");
+        pista.setState(new DisponivelState());
+    }
+
+    @Override
+    public boolean checarPermissao(Flight flight) {
+        return checarFila(flight) && runwayReservada.containsKey(flight);
     }
 }
